@@ -1,0 +1,755 @@
+openapi: 3.0.0
+info:
+  title: API Teknologi
+  description: API untuk Teknologi
+  version: 1.0.0
+
+servers:
+  - url: 10.10.60.247:3000
+    description: Server Lokal
+
+tags:
+  - name: User
+  - name: Role
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "3"
+        username:
+          type: string
+          example: "K-21312"
+        email:
+          type: string
+          example: "sandimaulidika@gmail.com"
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-03-20T15:30:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2024-03-20T15:30:00Z"
+
+    Error:
+      type: object
+      properties:
+        status:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: "Pesan error"
+
+    Role:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "1"
+        role_name:
+          type: string
+          example: "Karyawan"
+        description:
+          type: string
+          example: "Karyawan akses"
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-03-20T15:30:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2024-03-20T15:30:00Z"
+
+    Permission:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "1"
+        permission_name:
+          type: string
+          example: "create_user"
+        description:
+          type: string
+          example: "Izin untuk membuat user baru"
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-03-20T15:30:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2024-03-20T15:30:00Z"
+
+    RolePermission:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "1"
+        role_id:
+          type: string
+          example: "1"
+        role_name:
+          type: string
+          example: "Admin"
+        permission_id:
+          type: string
+          example: "1"
+        permission_name:
+          type: string
+          example: "create_user"
+
+    UserDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "1"
+        username:
+          type: string
+          example: "johndoe"
+        email:
+          type: string
+          example: "johndoe@example.com"
+        roles:
+          type: array
+          items:
+            type: string
+          example: ["Admin", "User"]
+
+    PermissionDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "1"
+        permission_name:
+          type: string
+          example: "create_user"
+        description:
+          type: string
+          example: "Izin untuk membuat user"
+        roles:
+          type: array
+          items:
+            type: string
+          example: ["Admin", "Manager"]
+
+    RoleDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "1"
+        role_name:
+          type: string
+          example: "Admin"
+        description:
+          type: string
+          example: "Administrator"
+        permissions:
+          type: array
+          items:
+            $ref: "#/components/schemas/PermissionDetail"
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserDetail"
+
+    HasRole:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "1"
+        role_id:
+          type: string
+          example: "1"
+        user_id:
+          type: string
+          example: "1"
+        role:
+          $ref: "#/components/schemas/RoleDetail"
+        user:
+          $ref: "#/components/schemas/UserDetail"
+
+    BaseResponse:
+      type: object
+      properties:
+        status:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Operasi berhasil"
+        data:
+          type: object
+
+    UserResponse:
+      allOf:
+        - $ref: "#/components/schemas/BaseResponse"
+        - type: object
+          properties:
+            data:
+              $ref: "#/components/schemas/User"
+
+    RoleResponse:
+      allOf:
+        - $ref: "#/components/schemas/BaseResponse"
+        - type: object
+          properties:
+            data:
+              $ref: "#/components/schemas/Role"
+
+    PermissionResponse:
+      allOf:
+        - $ref: "#/components/schemas/BaseResponse"
+        - type: object
+          properties:
+            data:
+              $ref: "#/components/schemas/Permission"
+
+    PaginationResponse:
+      allOf:
+        - $ref: "#/components/schemas/BaseResponse"
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                pagination:
+                  type: object
+                  properties:
+                    limit:
+                      type: integer
+                      example: 10
+                    page:
+                      type: integer
+                      example: 1
+                    total:
+                      type: integer
+                      example: 100
+                    total_pages:
+                      type: integer
+                      example: 10
+                items:
+                  type: array
+                  items:
+                    type: object
+
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          example: "johndoe"
+        password:
+          type: string
+          example: "secret123"
+
+    LoginResponse:
+      type: object
+      properties:
+        status:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Login berhasil"
+        data:
+          type: object
+          properties:
+            token:
+              type: string
+              example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+            user:
+              $ref: "#/components/schemas/UserDetail"
+
+paths:
+  # User endpoints
+  /api/getdata-user:
+    get:
+      tags:
+        - User
+      summary: Get list of users
+      description: Mengambil daftar pengguna dengan fitur paginasi
+      parameters:
+        - name: page
+          in: query
+          description: Halaman yang diinginkan
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Jumlah data per halaman
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: Daftar pengguna berhasil diambil
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginationResponse"
+                  - type: object
+                    properties:
+                      data:
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              $ref: "#/components/schemas/User"
+
+  /api/create-user:
+    post:
+      tags:
+        - User
+      summary: Create new user
+      description: Membuat user baru
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - email
+                - password
+              properties:
+                username:
+                  type: string
+                  example: "johndoe"
+                email:
+                  type: string
+                  example: "john@example.com"
+                password:
+                  type: string
+                  example: "secret123"
+      responses:
+        "201":
+          description: Pengguna berhasil dibuat
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "400":
+          description: Data tidak valid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/filter-user:
+    get:
+      tags:
+        - User
+      summary: Filter users
+      description: Mencari user berdasarkan kriteria tertentu
+      parameters:
+        - name: username
+          in: query
+          schema:
+            type: string
+        - name: email
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Filtered users
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginationResponse"
+
+  /api/delete-user/{username}:
+    delete:
+      tags:
+        - User
+      summary: Delete user
+      description: Menghapus user berdasarkan username
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User deleted successfully
+
+  # Role endpoints
+  /api/getdata-role:
+    get:
+      tags:
+        - Role
+      summary: Get list of roles
+      description: Mengambil daftar role
+      responses:
+        "200":
+          description: List of roles
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginationResponse"
+
+  /api/create-role:
+    post:
+      tags:
+        - Role
+      summary: Create new role
+      description: Membuat role baru
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - role_name
+                - description
+              properties:
+                role_name:
+                  type: string
+                  example: "admin"
+                description:
+                  type: string
+                  example: "Administrator role"
+      responses:
+        "201":
+          description: Role berhasil dibuat
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoleResponse"
+        "400":
+          description: Data tidak valid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/filter-role:
+    get:
+      tags:
+        - Role
+      summary: Filter roles
+      description: Mencari role berdasarkan kriteria tertentu
+      parameters:
+        - name: role_name
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Filtered roles
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginationResponse"
+
+  /api/delete-role/{role}:
+    delete:
+      tags:
+        - Role
+      summary: Delete role
+      description: Menghapus role
+      parameters:
+        - name: role
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Role deleted successfully
+
+  # Permission endpoints
+  /api/create-permission:
+    post:
+      tags:
+        - Permission
+      summary: Create new permission
+      description: Membuat permission baru
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - permission_name
+                - description
+              properties:
+                permission_name:
+                  type: string
+                  example: "create_user"
+                description:
+                  type: string
+                  example: "Permission to create users"
+      responses:
+        "201":
+          description: Permission created successfully
+
+  /api/getdata-permission:
+    get:
+      tags:
+        - Permission
+      summary: Get list of permissions
+      description: Mengambil daftar permission
+      responses:
+        "200":
+          description: List of permissions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginationResponse"
+
+  /api/filter-permission:
+    get:
+      tags:
+        - Permission
+      summary: Filter permissions
+      description: Mencari permission berdasarkan kriteria tertentu
+      parameters:
+        - name: permission_name
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Filtered permissions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginationResponse"
+
+  /api/delete-permission/{permission}:
+    delete:
+      tags:
+        - Permission
+      summary: Delete permission
+      description: Menghapus permission berdasarkan nama permission
+      parameters:
+        - name: permission
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Permission berhasil dihapus
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BaseResponse"
+        "404":
+          description: Permission tidak ditemukan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  # Role Permission endpoints
+  /api/create-role_permission:
+    post:
+      tags:
+        - RolePermission
+      summary: Create role permission mapping
+      description: Menambahkan permission ke role
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - role_id
+                - permission_id
+              properties:
+                role_id:
+                  type: string
+                  example: "1"
+                permission_id:
+                  type: string
+                  example: "1"
+      responses:
+        "201":
+          description: Role permission mapping created successfully
+
+  /api/get-role_permission:
+    get:
+      tags:
+        - RolePermission
+      summary: Get all role permissions
+      description: Mendapatkan semua mapping role dan permission
+      responses:
+        "200":
+          description: List of role permissions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginationResponse"
+
+  /api/get-role_permission/{role_id}:
+    get:
+      tags:
+        - RolePermission
+      summary: Get role permissions by role ID
+      description: Mendapatkan permission untuk role tertentu
+      parameters:
+        - name: role_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Role permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Permission"
+
+  /api/delete-role_permission/{id}:
+    delete:
+      tags:
+        - RolePermission
+      summary: Delete role permission mapping
+      description: Menghapus mapping antara role dan permission
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Role permission berhasil dihapus
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BaseResponse"
+        "404":
+          description: Role permission tidak ditemukan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  # User Role endpoints
+  /api/create-user_role:
+    post:
+      tags:
+        - UserRole
+      summary: Create user role mapping
+      description: Menambahkan role ke user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - user_id
+                - role_id
+              properties:
+                user_id:
+                  type: string
+                  example: "1"
+                role_id:
+                  type: string
+                  example: "1"
+      responses:
+        "201":
+          description: User role mapping created successfully
+
+  /api/get-user_role:
+    get:
+      tags:
+        - UserRole
+      summary: Get all user roles
+      description: Mendapatkan semua mapping user dan role
+      responses:
+        "200":
+          description: List of user roles
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginationResponse"
+
+  /api/get-user_role/{user_id}:
+    get:
+      tags:
+        - UserRole
+      summary: Get user roles by user ID
+      description: Mendapatkan role untuk user tertentu
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User roles
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Role"
+
+  /api/delete-user_role/{id}:
+    delete:
+      tags:
+        - UserRole
+      summary: Delete user role mapping
+      description: Menghapus mapping antara user dan role
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User role berhasil dihapus
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BaseResponse"
+        "404":
+          description: User role tidak ditemukan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
