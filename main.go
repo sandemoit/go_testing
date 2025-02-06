@@ -10,7 +10,7 @@ import (
 
 func main() {
 	// laod env
-	Utils.LoadEnv()
+	// Utils.LoadEnv()
 
 	// Koneksi ke database
 	database.ConnectDB()
