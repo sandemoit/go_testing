@@ -1,0 +1,370 @@
+basePath: /api
+definitions:
+  models.GlobalErrorHandlerResp:
+    properties:
+      message:
+        type: string
+      status:
+        type: boolean
+    type: object
+  models.GlobalSuccessHandlerResp:
+    properties:
+      data: {}
+      limit: {}
+      message: {}
+      page: {}
+      status:
+        type: boolean
+      total: {}
+    type: object
+  models.Material:
+    properties:
+      createdAt:
+        type: string
+      deleted_at:
+        type: string
+      id:
+        type: integer
+      kodeMat:
+        type: string
+      material:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  models.Plant:
+    properties:
+      createdAt:
+        type: string
+      deleted_at:
+        type: string
+      id:
+        type: integer
+      plant:
+        type: string
+      plantDesc:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  models.ProdDailies:
+    properties:
+      Material:
+        $ref: '#/definitions/models.Material'
+      Plant:
+        allOf:
+        - $ref: '#/definitions/models.Plant'
+        description: Definisi relasi
+      created_by:
+        type: string
+      createdAt:
+        type: string
+      deleted_at:
+        type: string
+      id:
+        type: integer
+      jmlProd:
+        type: number
+      kodeMaterial:
+        type: string
+      status:
+        type: integer
+      tglProd:
+        type: string
+      updatedAt:
+        type: string
+      uuid:
+        type: string
+      wcid:
+        type: string
+    type: object
+  models.UpdateProdDailiesRequest:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/models.ProdDailies'
+        type: array
+      method:
+        type: string
+    type: object
+host: localhost:3000
+info:
+  contact: {}
+  description: API Kebutuhan untuk Portal Teknologi
+  title: API Teknologi
+  version: "1.0"
+paths:
+  /api/getdata-effisiensi_amoniak:
+    get:
+      description: Mengambil data Efisiensi Amoniak
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Limit per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GlobalSuccessHandlerResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.GlobalErrorHandlerResp'
+      summary: Get Data Efisiensi Amoniak
+      tags:
+      - Efisiensi Dailies
+  /api/getdata-effisiensi_urea:
+    get:
+      description: Mengambil data Efisiensi Urea
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Limit per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GlobalSuccessHandlerResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.GlobalErrorHandlerResp'
+      summary: Get Data Efisiensi Urea
+      tags:
+      - Efisiensi Dailies
+  /api/getdata-effisiensi_utilitas:
+    get:
+      description: Mengambil data Efisiensi Utilitas
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Limit per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GlobalSuccessHandlerResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.GlobalErrorHandlerResp'
+      summary: Get Data Efisiensi Utilitas
+      tags:
+      - Efisiensi Dailies
+  /api/getdraft-prod_dailies:
+    get:
+      description: Mengambil data produksi dengan status draft
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Limit per page
+        in: query
+        name: limit
+        type: integer
+      - description: 'Tanggal periode (format: YYYY-MM-DD)'
+        in: query
+        name: tanggal_prod
+        type: string
+      - description: 'Tanggal awal periode (format: YYYY-MM-DD)'
+        in: query
+        name: tanggal_awal
+        type: string
+      - description: 'Tanggal akhir periode (format: YYYY-MM-DD)'
+        in: query
+        name: tanggal_akhir
+        type: string
+      - description: Kode Material
+        in: query
+        name: kode_material
+        type: string
+      - description: Status
+        in: query
+        name: status
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.GlobalSuccessHandlerResp'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.ProdDailies'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.GlobalErrorHandlerResp'
+      summary: Get Draft Data
+      tags:
+      - Data Produksi
+  /api/getrilis-prod_dailies:
+    get:
+      description: Mengambil data produksi dengan status rilis
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Limit per page
+        in: query
+        name: limit
+        type: integer
+      - description: 'Tanggal periode (format: YYYY-MM-DD)'
+        in: query
+        name: tanggal_prod
+        type: string
+      - description: 'Tanggal awal periode (format: YYYY-MM-DD)'
+        in: query
+        name: tanggal_awal
+        type: string
+      - description: 'Tanggal akhir periode (format: YYYY-MM-DD)'
+        in: query
+        name: tanggal_akhir
+        type: string
+      - description: Kode Material
+        in: query
+        name: kode_material
+        type: string
+      - description: Status
+        in: query
+        name: status
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.GlobalSuccessHandlerResp'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.ProdDailies'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.GlobalErrorHandlerResp'
+      summary: Get Released Data
+      tags:
+      - Data Produksi
+  /api/import-prod_dailies:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Mengimpor data dari file Excel dan menyimpannya ke database
+      parameters:
+      - description: File Excel yang akan diimpor
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GlobalSuccessHandlerResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.GlobalErrorHandlerResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.GlobalErrorHandlerResp'
+      summary: Import Excel Data
+      tags:
+      - Data Produksi
+  /api/revoke-prod_dailies:
+    put:
+      consumes:
+      - application/json
+      description: Mengupdate status produksi berdasarkan metode tertentu
+      parameters:
+      - description: Payload untuk update status
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateProdDailiesRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GlobalSuccessHandlerResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.GlobalErrorHandlerResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.GlobalErrorHandlerResp'
+      summary: Revoke Production Data
+      tags:
+      - Data Produksi
+  /api/update-prod_dailies:
+    put:
+      consumes:
+      - application/json
+      description: Mengupdate data produksi berdasarkan metode tertentu
+      parameters:
+      - description: Payload untuk update data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateProdDailiesRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GlobalSuccessHandlerResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.GlobalErrorHandlerResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.GlobalErrorHandlerResp'
+      summary: Update Production Data
+      tags:
+      - Data Produksi
+swagger: "2.0"
